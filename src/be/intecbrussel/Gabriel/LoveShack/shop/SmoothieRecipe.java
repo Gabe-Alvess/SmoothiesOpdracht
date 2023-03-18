@@ -3,13 +3,13 @@ package be.intecbrussel.Gabriel.LoveShack.shop;
 import be.intecbrussel.Gabriel.LoveShack.mixables.Food;
 import be.intecbrussel.Gabriel.LoveShack.mixables.fruits.*;
 import be.intecbrussel.Gabriel.LoveShack.mixables.vegetables.Celery;
-import be.intecbrussel.Gabriel.LoveShack.mixables.vegetables.Spinache;
+import be.intecbrussel.Gabriel.LoveShack.mixables.vegetables.Spinach;
 
 public enum SmoothieRecipe {
     CITRUS(new Food[]{new Orange(1), new Orange(1), new Lemon(0.75)}),
     STRAWBERRY_DREAM(new Food[]{new StrawBerry(2), new Orange(1), new Orange(1), new Banana(1.25)}),
     BANANA_SLIDE(new Food[]{new Banana(1.25), new Banana(1.25), new Orange(1)}),
-    VEGIE_SLURRY(new Food[]{new Banana(1.25), new Celery(1), new Spinache(1.25), new Apple(0.5)}),
+    VEGGIE_SLURRY(new Food[]{new Banana(1.25), new Celery(1), new Spinach(1.25), new Apple(0.5)}),
     CUSTOM_SMOOTHIE(new Food[]{});
 
     private double totalPrice;
