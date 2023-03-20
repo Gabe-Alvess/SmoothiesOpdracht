@@ -6,19 +6,28 @@ import be.intecbrussel.Gabriel.LoveShack.mixables.vegetables.Celery;
 import be.intecbrussel.Gabriel.LoveShack.mixables.vegetables.Spinach;
 
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 public class LoveShack {
-    private SmoothieRecipe[] orders = new SmoothieRecipe[]{};
+    private SmoothieRecipe[] orders; // max 4
     private double totalPrice;
-    private final Orange orange = new Orange(1);
-    private final StrawBerry strawBerry = new StrawBerry(2);
-    private final Banana banana = new Banana(1.25);
-    private final Apple apple = new Apple(0.5);
-    private final Lemon lemon = new Lemon(0.75);
-    private final Spinach spinach = new Spinach(1.25);
-    private final Celery celery = new Celery(1);
+    private Orange orange;
+    private StrawBerry strawberry;
+    private Banana banana;
+    private Apple apple;
+    private Lemon lemon;
+    private Spinach spinach;
+    private Celery celery;
 
     public LoveShack() {
+        this.orders = new SmoothieRecipe[4];
+        this.orange = new Orange(1);
+        this.strawberry = new StrawBerry(2);
+        this.banana = new Banana(1.25);
+        this.apple = new Apple(0.5);
+        this.lemon = new Lemon(0.75);
+        this.spinach = new Spinach(1.25);
+        this.celery = new Celery(1);
     }
 
     public SmoothieRecipe[] getOrders() {
@@ -30,159 +39,173 @@ public class LoveShack {
     }
 
     public void order() {
-        Scanner scanner = new Scanner(System.in);
-        int input;
-        int stopInput = 0;
-        int smoothieCount = 0;
-        int customSmoothieCount = 0;
-        Food[] customRecipe = new Food[]{};
-
+        boolean spaceAvailable = false;
         System.out.println("""
-                Please place your order! (max 4 smoothies and 1 custom smoothie per order!)
-                1.Citrus (Orange and lemon)
-                2.Strawberry Dream (Strawberry, orange and banana)
-                3.Banana Slide (Banana and orange)
-                4.Veggie Slurry (Banana, celery, spinach and apple)
-                5.Custom Smoothie (minimum 2 and maximum 4 ingredients)"""
+                    Please place your order! (max 4 smoothies and 1 custom smoothie per order!)
+                    1.Citrus (Orange and lemon)
+                    2.Strawberry Dream (Strawberry, orange and banana)
+                    3.Banana Slide (Banana and orange)
+                    4.Veggie Slurry (Banana, celery, spinach and apple)
+                    5.Custom Smoothie (minimum 2 and maximum 4 ingredients)"""
         );
 
         while (true) {
-            input = scanner.nextInt();
+            spaceAvailable = false;
 
-            if (smoothieCount == 4) {
-                System.out.println("Maximum 4 smoothies per order! Do you want to add a custom smoothie? (1.Yes | 2.No)");
-                stopInput = scanner.nextInt();
-
-                if (stopInput == 1) {
-                    System.out.println("Please enter '5' to add a custom smoothie!");
-                    continue;
-                } else if (stopInput == 2) {
-                    System.out.println("Order successfully placed!\n");
+            for (SmoothieRecipe order : orders) {
+                if (order == null) {
+                    spaceAvailable = true;
                     break;
-                } else {
-                    System.out.println("Invalid input! Try again.");
-                    stopInput = scanner.nextInt();
                 }
             }
 
-            switch (input) {
-                case 1:
-                    smoothieCount++;
-                    orders = new SmoothieRecipe[]{SmoothieRecipe.CITRUS};
-                    System.out.println("Order successfully placed!");
-                    break;
-                case 2:
-                    smoothieCount++;
-                    orders = new SmoothieRecipe[]{SmoothieRecipe.STRAWBERRY_DREAM};
-                    System.out.println("Order successfully placed!");
-                    break;
-                case 3:
-                    smoothieCount++;
-                    orders = new SmoothieRecipe[]{SmoothieRecipe.BANANA_SLIDE};
-                    System.out.println("Order successfully placed!");
-                    break;
-                case 4:
-                    smoothieCount++;
-                    orders = new SmoothieRecipe[]{SmoothieRecipe.VEGGIE_SLURRY};
-                    System.out.println("Order successfully placed!");
-                    break;
-                case 5:
-                    customSmoothieCount++;
+            if (!spaceAvailable) {
+                System.out.println("You already ordered 4 smoothies. That is the limit.");
+                break;
+            }
 
-                    if (customSmoothieCount > 1) {
-                        System.out.println("Maximum 1 custom smoothie per order! Please choose one of our recipes.");
+            Scanner scanner = new Scanner(System.in);
+
+            int userInput = scanner.nextInt();
+            SmoothieRecipe recipe;
+            switch (userInput) {
+                case 1 -> recipe = SmoothieRecipe.CITRUS;
+                case 2 -> recipe = SmoothieRecipe.STRAWBERRY_DREAM;
+                case 3 -> recipe = SmoothieRecipe.BANANA_SLIDE;
+                case 4 -> recipe = SmoothieRecipe.VEGGIE_SLURRY;
+                case 5 -> recipe = SmoothieRecipe.CUSTOM_SMOOTHIE;
+                default -> {
+                    System.out.println("INVALID INPUT!");
+                    return;
+                }
+            }
+
+            if (recipe.equals(SmoothieRecipe.CUSTOM_SMOOTHIE)) {
+                for (SmoothieRecipe order : orders) {
+                    if (order != null && order.equals(SmoothieRecipe.CUSTOM_SMOOTHIE)) {
+                        System.out.println("YOU ALREADY HAVE A CUSTOM SMOOTHIE");
+                        return;
+                    }
+                }
+
+                Food[] flavors = new Food[4];
+                int flavorIndex = 0;
+
+                flavors:
+                while (true) {
+
+                    if (flavorIndex > 3) {
                         break;
                     }
 
-                    int customSmoothieInput = 0;
+                    System.out.println("WHAT FLAVORS DO YOU WANT? \n" +
+                            "1.apple - 2.banana - 3.lemon - 4.orange - 5.strawberry - 6.celery - 7.spinach - 8.stop");
 
-                    System.out.println("""
-                            Please choose minimum 2 and maximum 4 ingredients from the list below.
-                            1.Orange
-                            2.Lemon
-                            3.Banana
-                            4.Strawberry
-                            5.Apple
-                            6.Celery
-                            7.Spinach"""
-                    );
+                    int flavor = scanner.nextInt();
 
+                    Food food;
 
-                    while (customRecipe.length < 4) {
-                        customSmoothieInput = scanner.nextInt();
-
-                        if (customRecipe.length == 2) {
-                            System.out.println("Do you want to add more ingredients? (1.Yes | 2.No)");
-                            stopInput = scanner.nextInt();
+                    switch (flavor) {
+                        case 1 -> food = apple;
+                        case 2 -> food = banana;
+                        case 3 -> food = lemon;
+                        case 4 -> food = orange;
+                        case 5 -> food = strawberry;
+                        case 6 -> food = celery;
+                        case 7 -> food = spinach;
+                        case 8 -> {
+                            break flavors;
                         }
-
-                        if (stopInput == 1) {
-                            System.out.println("Two more ingredients to go!");
-                            continue;
-                        } else if (stopInput == 2) {
-                            break;
-                        } else {
-                            System.out.println("Invalid input! Try again.");
-                            stopInput = scanner.nextInt();
-                        }
-
-                        switch (customSmoothieInput){
-                            case 1:
-                                orange.mix();
-                                customRecipe = new Food[]{orange};
-                                break;
-                            case 2:
-                                lemon.mix();
-                                customRecipe = new Food[]{lemon};
-                                break;
-                            case 3:
-                                banana.mix();
-                                customRecipe = new Food[]{banana};
-                                break;
-                            case 4:
-                                strawBerry.mix();
-                                customRecipe = new Food[]{strawBerry};
-                                break;
-                            case 5:
-                                apple.mix();
-                                customRecipe = new Food[]{apple};
-                                break;
-                            case 6:
-                                celery.mix();
-                                customRecipe = new Food[]{celery};
-                                break;
-                            case 7:
-                                spinach.mix();
-                                customRecipe = new Food[]{spinach};
-                                break;
-                            default:
-                                System.out.println("Invalid input! Please enter a number between 1 and 7.");
+                        default -> {
+                            System.out.println("WRONG INPUT");
+                            return;
                         }
                     }
-                    System.out.println("Custom order successfully placed!");
-                    SmoothieRecipe.CUSTOM_SMOOTHIE.setRecipe(customRecipe);
-                break;
-                default:
-                    System.out.println("Invalid input! Please enter a number between 1 and 5.");
+
+                    for (Food flavor1 : flavors) {
+                        if (flavor1 != null && flavor1.equals(food)) {
+                            System.out.println("FLAVOR ALREADY EXISTS!");
+                            continue flavors;
+                        }
+                    }
+                    flavors[flavorIndex++] = food;
+
+                    if (flavorIndex < 2) {
+                        System.out.println("TOO LITTLE FLAVOR");
+                        return;
+                    }
+
+                    Food[] arrayToSet;
+                    int arrToSetIndex = 0;
+
+                    switch (flavorIndex) {
+                        case 2 -> arrayToSet = new Food[2];
+                        case 3 -> arrayToSet = new Food[3];
+                        case 4 -> arrayToSet = new Food[4];
+                        default -> {
+                            return;
+                        }
+                    }
+
+                    for (Food foods : flavors) {
+                        if (food != null) {
+                            arrayToSet[arrToSetIndex++] = food;
+                        }
+                    }
+
+                    SmoothieRecipe.CUSTOM_SMOOTHIE.setRecipe(flavors);
+                }
             }
 
-            if (orders.length == 5) {
-                System.out.println("Maximum of 5 orders reached!\n");
-                break;
+            for (int i = 0; i < orders.length; i++) {
+                SmoothieRecipe arrRecipe = orders[i];
+                if (arrRecipe == null) {
+                    orders[i] = recipe;
+                    break;
+                }
+            }
+
+            totalPrice += orderFromSmoothieRecipe();
+            totalPrice += customOrder();
+
+            for (SmoothieRecipe order : orders) {
+                if (order == null) {
+                    continue;
+                }
+
+                System.out.println(order.name());
+                Stream.of(order.getRecipe())
+                        .forEach(Food::mix);
             }
         }
-        int i = 1;
-        for (SmoothieRecipe order: orders) {
-            System.out.println("Your orders:\n" + i + "." + order.toString().toLowerCase());
-            i++;
-        }
+
+        System.out.println("TOTAL PRICE: " + totalPrice);
+
     }
 
     private double orderFromSmoothieRecipe() {
-        return 2.2;
+        double total = 0;
+        for (SmoothieRecipe order : orders) {
+            if (order == null || order.equals(SmoothieRecipe.CUSTOM_SMOOTHIE)) {
+                continue;
+            }
+
+            total += order.getTotalPrice();
+        }
+
+        return total;
     }
 
     private double customOrder() {
-        return 2.2;
+        double total = 0;
+        for (SmoothieRecipe order : orders) {
+            if (order == null || !order.equals(SmoothieRecipe.CUSTOM_SMOOTHIE)) {
+                continue;
+            }
+
+            total += order.getTotalPrice();
+        }
+
+        return total;
     }
 }
